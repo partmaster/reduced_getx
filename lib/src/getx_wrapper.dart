@@ -16,6 +16,5 @@ Widget wrapWithConsumer<S, P extends Object>({
 }) =>
     GetBuilder<ReducibleGetx<S>>(
       filter: transformer,
-      builder: (controller) =>
-          builder(props: transformer(controller)),
+      builder: (controller) => builder(props: transformer(controller)),
     );

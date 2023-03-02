@@ -4,8 +4,7 @@ import 'package:get/get.dart';
 import 'package:reduced/reduced.dart';
 
 /// Derivation of the class [GetxController] with support of the [Reducible] interface.
-class ReducibleGetx<S> extends GetxController
-    implements Reducible<S> {
+class ReducibleGetx<S> extends GetxController implements Reducible<S> {
   ReducibleGetx(S state) : _state = state;
 
   S _state;
