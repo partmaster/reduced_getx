@@ -13,10 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.6.5
-  reduced:
-    git:
-      url: https://github.com/partmaster/reduced.git
-      ref: main
+  reduced: ^0.1.0
 
 dev_dependencies:
   flutter_test:
