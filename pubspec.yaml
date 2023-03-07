@@ -1,5 +1,5 @@
 name: reduced_getx
-version: 0.1.0
+version: 0.2.1
 description: Implementation of the state management API 'reduced' on top of the state management framework 'GetX'.
 homepage: https://github.com/partmaster/reduced_getx
 repository: https://github.com/partmaster/reduced_getx.git
@@ -13,7 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.6.5
-  reduced: ^0.1.0
+  reduced: 0.2.1
 
 dev_dependencies:
   flutter_test:

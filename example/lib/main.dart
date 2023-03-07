@@ -15,11 +15,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: Builder(
-          builder: (context) => wrapWithConsumer(
-            transformer: transformer,
-            builder: builder,
-          ),
+        home: const ReducedConsumer(
+          transformer: transformer,
+          builder: builder,
         ),
       );
 }

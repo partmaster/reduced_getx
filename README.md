@@ -7,18 +7,17 @@
 
 Implementation of the 'reduced' API for the 'GetX' state management framework with following features:
 
-1. Implementation of the ```Reducible``` interface 
+1. Implementation of the ```ReducedStore``` interface 
 2. Register a state for management.
 3. Trigger a rebuild on widgets selectively after a state change.
 
 ## Features
 
-#### 1. Implementation of the ```Reducible``` interface 
+#### 1. Implementation of the ```ReducedStore``` interface 
 
 ```dart
-class ReducibleGetx<S> extends GetxController
-    implements Reducible<S> {
-  ReducibleGetx(S state) : _state = state;
+class Store<S> extends GetxController implements ReducedStore<S> {
+  Store(S state) : _state = state;
 
   S _state;
 
@@ -37,22 +36,30 @@ class ReducibleGetx<S> extends GetxController
 
 ```dart
 void registerState<S>({required S initialState}) {
-  Get.put(ReducibleGetx<S>(initialState));
+  Get.put(ReducedStoreGetx<S>(initialState));
 }
 ```
 
 #### 3. Trigger a rebuild on widgets selectively after a state change.
 
 ```dart
-Widget wrapWithConsumer<S, P extends Object>({
-  required ReducedTransformer<S, P> transformer,
-  required ReducedWidgetBuilder<P> builder,
-}) =>
-    GetBuilder<ReducibleGetx<S>>(
-      filter: transformer,
-      builder: (controller) =>
-          builder(props: transformer(controller)),
-    );
+class ReducedConsumer<S, P extends Object> extends StatelessWidget {
+  const ReducedConsumer({
+    super.key,
+    required this.transformer,
+    required this.builder,
+  });
+
+  final ReducedTransformer<S, P> transformer;
+  final ReducedWidgetBuilder<P> builder;
+
+  @override
+  Widget build(BuildContext context) => GetBuilder<Store<S>>(
+        filter: transformer,
+        builder: (controller) =>
+            builder(props: transformer(controller)),
+      );
+}
 ```
 
 ## Getting started
@@ -61,8 +68,8 @@ In the pubspec.yaml add dependencies on the package 'reduced' and on the package
 
 ```
 dependencies:
-  reduced: ^0.1.0
-  reduced_getx: ^0.1.0
+  reduced: 0.2.1
+  reduced_getx: 0.2.1
 ```
 
 Import package 'reduced' to implement the logic.
@@ -98,9 +105,9 @@ class Props {
   final Callable<void> onPressed;
 }
 
-Props transformer(Reducible<int> reducible) => Props(
-      counterText: '${reducible.state}',
-      onPressed: CallableAdapter(reducible, Incrementer()),
+Props transformer(ReducedStore<int> store) => Props(
+      counterText: '${store.state}',
+      onPressed: CallableAdapter(store, Incrementer()),
     );
 
 Widget builder({Key? key, required Props props}) => Scaffold(
@@ -144,11 +151,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: Builder(
-          builder: (context) => wrapWithConsumer(
-            transformer: transformer,
-            builder: builder,
-          ),
+        home: const ReducedConsumer(
+          transformer: transformer,
+          builder: builder,
         ),
       );
 }
