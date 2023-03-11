@@ -3,11 +3,9 @@ import 'package:reduced/reduced.dart';
 
 import 'package:reduced_getx/reduced_getx.dart';
 
-class Incrementer extends Reducer<int> {
+class Incrementer extends Event<int> {
   @override
-  int call(int state) {
-    return state + 1;
-  }
+  int call(int state) => state + 1;
 }
 
 void main() {
@@ -21,9 +19,9 @@ void main() {
     expect(objectUnderTest.state, 1);
   });
 
-  test('ReducibleGetx reduce', () async {
+  test('ReducibleGetx dispatch', () async {
     final objectUnderTest = Store(0);
-    objectUnderTest.reduce(Incrementer());
+    objectUnderTest.dispatch(Incrementer());
     expect(objectUnderTest.state, 1);
   });
 }

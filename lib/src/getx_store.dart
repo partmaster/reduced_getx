@@ -13,8 +13,8 @@ class Store<S> extends GetxController implements ReducedStore<S> {
   get state => _state;
 
   @override
-  reduce(reducer) {
-    _state = reducer(_state);
+  dispatch(event) {
+    _state = event(_state);
     update();
   }
 }
