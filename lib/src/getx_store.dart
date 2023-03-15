@@ -4,8 +4,7 @@ import 'package:get/get.dart';
 import 'package:reduced/reduced.dart';
 
 /// Derivation of the class [GetxController] with support of the [Store] interface.
-class GetxControllerStore<S> extends GetxController
-    implements Store<S> {
+class GetxControllerStore<S> extends GetxController implements Store<S> {
   GetxControllerStore(S state) : _state = state;
 
   S _state;

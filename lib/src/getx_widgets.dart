@@ -21,8 +21,7 @@ class ReducedConsumer<S, P extends Object> extends StatelessWidget {
   final WidgetFromPropsBuilder<P> builder;
 
   @override
-  Widget build(BuildContext context) =>
-      GetBuilder<GetxControllerStore<S>>(
+  Widget build(BuildContext context) => GetBuilder<GetxControllerStore<S>>(
         filter: (store) => mapper(store.state, store),
         builder: (controller) => builder(
           props: mapper(
