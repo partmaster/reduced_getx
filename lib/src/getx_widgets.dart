@@ -7,22 +7,28 @@ import 'package:reduced/reduced.dart';
 import 'getx_store.dart';
 
 void registerState<S>({required S initialState}) {
-  Get.put(Store<S>(initialState));
+  Get.put(GetxControllerStore<S>(initialState));
 }
 
 class ReducedConsumer<S, P extends Object> extends StatelessWidget {
   const ReducedConsumer({
     super.key,
-    required this.transformer,
+    required this.mapper,
     required this.builder,
   });
 
-  final ReducedTransformer<S, P> transformer;
-  final ReducedWidgetBuilder<P> builder;
+  final StateToPropsMapper<S, P> mapper;
+  final WidgetFromPropsBuilder<P> builder;
 
   @override
-  Widget build(BuildContext context) => GetBuilder<Store<S>>(
-        filter: transformer,
-        builder: (controller) => builder(props: transformer(controller)),
+  Widget build(BuildContext context) =>
+      GetBuilder<GetxControllerStore<S>>(
+        filter: (store) => mapper(store.state, store),
+        builder: (controller) => builder(
+          props: mapper(
+            controller.state,
+            controller,
+          ),
+        ),
       );
 }

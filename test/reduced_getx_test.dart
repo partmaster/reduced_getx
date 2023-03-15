@@ -10,18 +10,18 @@ class Incrementer extends Event<int> {
 
 void main() {
   test('ReducibleGetx state 0', () {
-    final objectUnderTest = Store(0);
+    final objectUnderTest = GetxControllerStore(0);
     expect(objectUnderTest.state, 0);
   });
 
   test('ReducibleGetx state 1', () {
-    final objectUnderTest = Store(1);
+    final objectUnderTest = GetxControllerStore(1);
     expect(objectUnderTest.state, 1);
   });
 
   test('ReducibleGetx dispatch', () async {
-    final objectUnderTest = Store(0);
-    objectUnderTest.dispatch(Incrementer());
+    final objectUnderTest = GetxControllerStore(0);
+    objectUnderTest.process(Incrementer());
     expect(objectUnderTest.state, 1);
   });
 }

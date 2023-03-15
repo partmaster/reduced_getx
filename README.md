@@ -7,17 +7,18 @@
 
 Implementation of the 'reduced' API for the 'GetX' state management framework with following features:
 
-1. Implementation of the ```ReducedStore``` interface 
+1. Implementation of the ```Store``` interface 
 2. Register a state for management.
 3. Trigger a rebuild on widgets selectively after a state change.
 
 ## Features
 
-#### 1. Implementation of the ```ReducedStore``` interface 
+#### 1. Implementation of the ```Store``` interface 
 
 ```dart
-class Store<S> extends GetxController implements ReducedStore<S> {
-  Store(S state) : _state = state;
+class GetxControllerStore<S> extends GetxController
+    implements Store<S> {
+  GetxControllerStore(S state) : _state = state;
 
   S _state;
 
@@ -25,8 +26,8 @@ class Store<S> extends GetxController implements ReducedStore<S> {
   get state => _state;
 
   @override
-  reduce(reducer) {
-    _state = reducer(_state);
+  process(event) {
+    _state = event(_state);
     update();
   }
 }
@@ -36,7 +37,7 @@ class Store<S> extends GetxController implements ReducedStore<S> {
 
 ```dart
 void registerState<S>({required S initialState}) {
-  Get.put(ReducedStoreGetx<S>(initialState));
+  Get.put(GetxControllerStore<S>(initialState));
 }
 ```
 
@@ -46,18 +47,23 @@ void registerState<S>({required S initialState}) {
 class ReducedConsumer<S, P extends Object> extends StatelessWidget {
   const ReducedConsumer({
     super.key,
-    required this.transformer,
+    required this.mapper,
     required this.builder,
   });
 
-  final ReducedTransformer<S, P> transformer;
-  final ReducedWidgetBuilder<P> builder;
+  final StateToPropsMapper<S, P> mapper;
+  final WidgetFromPropsBuilder<P> builder;
 
   @override
-  Widget build(BuildContext context) => GetBuilder<Store<S>>(
-        filter: transformer,
-        builder: (controller) =>
-            builder(props: transformer(controller)),
+  Widget build(BuildContext context) =>
+      GetBuilder<GetxControllerStore<S>>(
+        filter: (store) => mapper(store.state, store),
+        builder: (controller) => builder(
+          props: mapper(
+            controller.state,
+            controller,
+          ),
+        ),
       );
 }
 ```
@@ -68,8 +74,11 @@ In the pubspec.yaml add dependencies on the package 'reduced' and on the package
 
 ```
 dependencies:
-  reduced: 0.2.1
-  reduced_getx: 0.2.1
+  reduced: 0.4.0
+  reduced_getx: 
+    git:
+      url: https://github.com/partmaster/reduced_getx.git
+      ref: v0.4.0
 ```
 
 Import package 'reduced' to implement the logic.
@@ -93,42 +102,56 @@ Implementation of the counter demo app logic with the 'reduced' API without furt
 
 import 'package:flutter/material.dart';
 import 'package:reduced/reduced.dart';
+import 'package:reduced/callbacks.dart';
 
-class Incrementer extends Reducer<int> {
+class CounterIncremented extends Event<int> {
   @override
   int call(int state) => state + 1;
 }
 
 class Props {
-  Props({required this.counterText, required this.onPressed});
+  const Props({required this.counterText, required this.onPressed});
+
   final String counterText;
-  final Callable<void> onPressed;
+  final VoidCallable onPressed;
 }
 
-Props transformer(ReducedStore<int> store) => Props(
-      counterText: '${store.state}',
-      onPressed: CallableAdapter(store, Incrementer()),
-    );
+class PropsMapper extends Props {
+  PropsMapper(int state, EventProcessor<int> processor)
+      : super(
+          counterText: '$state',
+          onPressed: EventCarrier(processor, CounterIncremented()),
+        );
+}
 
-Widget builder({Key? key, required Props props}) => Scaffold(
-      appBar: AppBar(title: const Text('reduced_getx example')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(props.counterText),
-          ],
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key, required this.props});
+
+  final Props props;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('reduced_setstate example'),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: props.onPressed,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(props.counterText),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: props.onPressed,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+      );
+}
 ```
 
 Finished counter demo app using logic.dart and 'reduced_getx' package:
@@ -152,8 +175,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         theme: ThemeData(primarySwatch: Colors.blue),
         home: const ReducedConsumer(
-          transformer: transformer,
-          builder: builder,
+          mapper: PropsMapper.new,
+          builder: MyHomePage.new,
         ),
       );
 }

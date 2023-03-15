@@ -3,9 +3,10 @@
 import 'package:get/get.dart';
 import 'package:reduced/reduced.dart';
 
-/// Derivation of the class [GetxController] with support of the [ReducedStore] interface.
-class Store<S> extends GetxController implements ReducedStore<S> {
-  Store(S state) : _state = state;
+/// Derivation of the class [GetxController] with support of the [Store] interface.
+class GetxControllerStore<S> extends GetxController
+    implements Store<S> {
+  GetxControllerStore(S state) : _state = state;
 
   S _state;
 
@@ -13,7 +14,7 @@ class Store<S> extends GetxController implements ReducedStore<S> {
   get state => _state;
 
   @override
-  dispatch(event) {
+  process(event) {
     _state = event(_state);
     update();
   }
